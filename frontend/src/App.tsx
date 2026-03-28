@@ -31,7 +31,7 @@ function App() {
     if (appState !== 'collecting') return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/risk-score', {
+        const res = await fetch('https://uidai-passive-bot-detection.onrender.com/api/risk-score', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -237,7 +237,20 @@ function App() {
 
          {/* CHALLENGE STATE */}
         {appState === 'challenge' && (
-          <ImageChallenge onPass={handleChallengeComplete} />
+          <ImageChallenge
+            onPass={handleChallengeComplete}
+            onFail={() => {
+              const newAttempts = failedAttempts + 1;
+              setFailedAttempts(newAttempts);
+              sessionStorage.setItem('failed_attempts', String(newAttempts));
+              if (newAttempts >= 3) {
+                setPermanentBlock(true);
+                sessionStorage.setItem('permanent_block', 'true');
+              }
+              setConfidence(0.2);
+              setAppState('blocked');
+            }}
+          />
         )}
 
         {/* VERIFIED STATE */}
@@ -330,27 +343,32 @@ const CHALLENGES = [
   },
 ];
 
-function ImageChallenge({ onPass }: { onPass: () => void }) {
+function ImageChallenge({ onPass, onFail }: { onPass: () => void, onFail: () => void }) {
   const [challenge] = useState(() =>
     CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]
   );
   const [selected, setSelected] = useState<number | null>(null);
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
   const [attempts, setAttempts] = useState(0);
-
-  const handleSelect = (index: number, correct: boolean) => {
+const handleSelect = (index: number, correct: boolean) => {
     if (result === 'correct') return;
     setSelected(index);
     if (correct) {
       setResult('correct');
       setTimeout(onPass, 1000);
     } else {
+      const newAttempts = attempts + 1;
       setResult('wrong');
-      setAttempts(a => a + 1);
-      setTimeout(() => {
-        setSelected(null);
-        setResult(null);
-      }, 800);
+      setAttempts(newAttempts);
+      if (newAttempts >= 3) {
+        // 3 wrong answers = block
+        setTimeout(() => onFail(), 1000);
+      } else {
+        setTimeout(() => {
+          setSelected(null);
+          setResult(null);
+        }, 800);
+      }
     }
   };
 
@@ -392,11 +410,14 @@ function ImageChallenge({ onPass }: { onPass: () => void }) {
         {result === 'correct' && (
           <div style={challengeStyles.successMsg}>✅ Correct! Verifying you now...</div>
         )}
-        {result === 'wrong' && (
-          <div style={challengeStyles.wrongMsg}>❌ Wrong! Try again...</div>
+        {result === 'wrong' && attempts < 3 && (
+          <div style={challengeStyles.wrongMsg}>❌ Wrong! {3 - attempts} attempts remaining...</div>
+        )}
+        {result === 'wrong' && attempts >= 3 && (
+          <div style={challengeStyles.wrongMsg}>❌ Too many wrong answers! Blocking...</div>
         )}
         {attempts > 0 && result !== 'correct' && (
-          <div style={challengeStyles.attempts}>Attempts: {attempts}</div>
+          <div style={challengeStyles.attempts}>Wrong attempts: {attempts} / 3</div>
         )}
       </div>
     </div>

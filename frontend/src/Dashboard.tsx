@@ -28,7 +28,7 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/dashboard');
+     const res = await fetch('https://uidai-passive-bot-detection.onrender.com/api/dashboard');
       const data = await res.json();
       setStats(data.stats);
       setLogs(data.logs);
@@ -65,7 +65,7 @@ function Dashboard() {
   };
 
   const resetDashboard = async () => {
-    await fetch('http://127.0.0.1:8000/api/dashboard/reset');
+    await fetch('https://uidai-passive-bot-detection.onrender.com/api/dashboard/reset');
     fetchData();
   };
 
