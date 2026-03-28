@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import numpy as np
 from typing import List, Dict, Any
 
@@ -158,7 +157,6 @@ def compute_typing_rhythm(dwells: List[float]) -> float:
 def is_headless(env: Dict) -> bool:
     renderer = env.get('webglRenderer', '').lower()
     headless_clues = ['swiftshader', 'llvmpipe', 'virtualbox', 'vmware', 'mesa offscreen']
-=======
 import numpy as np
 from typing import List, Dict, Any
 
@@ -318,5 +316,4 @@ def compute_typing_rhythm(dwells: List[float]) -> float:
 def is_headless(env: Dict) -> bool:
     renderer = env.get('webglRenderer', '').lower()
     headless_clues = ['swiftshader', 'llvmpipe', 'virtualbox', 'vmware', 'mesa offscreen']
->>>>>>> c6a6f291742569444247fde7fc71a1e77b95f16c
     return any(clue in renderer for clue in headless_clues)
