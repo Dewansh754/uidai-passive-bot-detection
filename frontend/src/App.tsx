@@ -15,6 +15,7 @@ function App() {
   const [aadhaarNo, setAadhaarNo] = useState('');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [challengeDone, setChallengeDone] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(() => {
     return parseInt(sessionStorage.getItem('failed_attempts') || '0');
